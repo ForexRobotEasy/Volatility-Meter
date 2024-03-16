@@ -1,0 +1,68 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                                 Volatility Meter |
+//|                                      Developed by Forex Robot Easy Team |
+//|                                                        forexroboteasy.com |
+//+------------------------------------------------------------------+
+
+// Define input parameters
+input int SignalPeriod = 14; // Period for calculating the signal line
+
+// Define global variables
+double yellowSignalLine; // Yellow signal line value
+double zeroLine = 0; // Zero line value
+
+//+------------------------------------------------------------------+
+//| Custom indicator initialization function                         |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+    // Define indicator buffers
+    IndicatorBuffers(2);
+
+    // Set buffer for the yellow signal line
+    SetIndexBuffer(0, yellowSignalLine, INDICATOR_DATA);
+
+    // Set buffer for the zero line
+    SetIndexBuffer(1, zeroLine, INDICATOR_CALCULATIONS);
+
+    // Set indicator label
+    IndicatorShortName('Volatility Meter');
+
+    return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Custom indicator iteration function                              |
+//+------------------------------------------------------------------+
+int OnCalculate(const int rates_total,
+                const int prev_calculated,
+                const datetime &time[],
+                const double &open[],
+                const double &high[],
+                const double &low[],
+                const double &close[],
+                const long &tick_volume[],
+                const long &volume[],
+                const int &spread[])
+{
+    // Calculate yellow signal line
+    for(int i = prev_calculated; i < rates_total; i++)
+    {
+        yellowSignalLine = iMA(NULL, 0, SignalPeriod, 0, MODE_SMA, PRICE_CLOSE, i);
+    }
+
+    // Check for potential buying or selling opportunities
+    if(yellowSignalLine > zeroLine)
+    {
+        // Print buying opportunity message
+        Print('Yellow signal line crossed zero line in an upward direction. Buying opportunity detected.');
+    }
+    else if(yellowSignalLine < zeroLine)
+    {
+        // Print selling opportunity message
+        Print('Yellow signal line crossed zero line in a downward direction. Selling opportunity detected.');
+    }
+
+    return(rates_total);
+}
